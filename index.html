@@ -89,6 +89,14 @@
       <input type="number" id="valorTinta" step="any" placeholder="Ex: 0.75">
     </div>
     <div class="field">
+      <label>Taxa Percentual (%):</label>
+      <input type="number" id="taxaPercentual" step="any" placeholder="Ex: 20" value="20">
+    </div>
+    <div class="field">
+      <label>Taxa Fixa:</label>
+      <input type="number" id="taxaFixa" step="any" placeholder="Ex: 4" value="4">
+    </div>
+    <div class="field">
       <label>Escolha a operação:</label>
       <select id="operation">
         <option value="lucro">Calcular Lucro (informar Valor de Venda)</option>
@@ -129,6 +137,10 @@
       var valorTinta = parseFloat(document.getElementById("valorTinta").value) || 0;
       var custo = valorCopo + valorEmbalagem + valorTinta;
       
+      // Obtém os valores da taxa
+      var taxaPercentual = parseFloat(document.getElementById("taxaPercentual").value) || 0;
+      var taxaFixa = parseFloat(document.getElementById("taxaFixa").value) || 0;
+
       var op = document.getElementById("operation").value;
       var resultadoDiv = document.getElementById("resultado");
       resultadoDiv.innerHTML = ""; // Limpa resultado anterior
@@ -140,12 +152,12 @@
           resultadoDiv.innerHTML = "<p style='color:red;'>Por favor, informe um Valor de Venda válido.</p>";
           return;
         }
-        // Calcula a taxa (20% do valor de venda + 4)
-        var taxa = (valorVenda * 0.20) + 4;
-        var liquido = valorVenda - taxa;
+        // Calcula a taxa: (valorVenda * (taxaPercentual/100)) + taxaFixa
+        var taxaAplicada = (valorVenda * (taxaPercentual / 100)) + taxaFixa;
+        var liquido = valorVenda - taxaAplicada;
         var lucro = liquido - custo;
         resultadoDiv.innerHTML = "<p><strong>Custo Total:</strong> R$ " + custo.toFixed(2) + "</p>" +
-                                 "<p><strong>Taxa Aplicada:</strong> R$ " + taxa.toFixed(2) + "</p>" +
+                                 "<p><strong>Taxa Aplicada:</strong> R$ " + taxaAplicada.toFixed(2) + " (" + taxaPercentual.toFixed(2) + "% + R$ " + taxaFixa.toFixed(2) + ")</p>" +
                                  "<p><strong>Valor Líquido:</strong> R$ " + liquido.toFixed(2) + "</p>" +
                                  "<p><strong>Lucro:</strong> R$ " + lucro.toFixed(2) + "</p>";
       } else if (op === "venda") {
@@ -155,15 +167,20 @@
           resultadoDiv.innerHTML = "<p style='color:red;'>Por favor, informe um Lucro Desejado válido.</p>";
           return;
         }
-        // Fórmula: lucro = 0.80 * valorVenda - 4 - custo
-        // Portanto, valorVenda = (lucroDesejado + custo + 4) / 0.80
-        var valorVendaCalculado = (lucroDesejado + custo + 4) / 0.80;
-        var taxa = (valorVendaCalculado * 0.20) + 4;
-        var liquido = valorVendaCalculado - taxa;
+        // Fórmula: lucro = (valorVenda * (1 - taxaPercentual/100)) - taxaFixa - custo
+        // Então: valorVenda = (lucroDesejado + custo + taxaFixa) / (1 - (taxaPercentual/100))
+        var percentualLiquido = 1 - (taxaPercentual / 100);
+        if (percentualLiquido <= 0) {
+          resultadoDiv.innerHTML = "<p style='color:red;'>O valor da taxa percentual deve ser menor que 100%.</p>";
+          return;
+        }
+        var valorVendaCalculado = (lucroDesejado + custo + taxaFixa) / percentualLiquido;
+        var taxaAplicada = (valorVendaCalculado * (taxaPercentual / 100)) + taxaFixa;
+        var liquido = valorVendaCalculado - taxaAplicada;
         var lucroReal = liquido - custo;
         resultadoDiv.innerHTML = "<p><strong>Custo Total:</strong> R$ " + custo.toFixed(2) + "</p>" +
                                  "<p><strong>Valor de Venda Necessário:</strong> R$ " + valorVendaCalculado.toFixed(2) + "</p>" +
-                                 "<p><strong>Taxa Aplicada:</strong> R$ " + taxa.toFixed(2) + "</p>" +
+                                 "<p><strong>Taxa Aplicada:</strong> R$ " + taxaAplicada.toFixed(2) + " (" + taxaPercentual.toFixed(2) + "% + R$ " + taxaFixa.toFixed(2) + ")</p>" +
                                  "<p><strong>Valor Líquido:</strong> R$ " + liquido.toFixed(2) + "</p>" +
                                  "<p><strong>Lucro:</strong> R$ " + lucroReal.toFixed(2) + "</p>";
       }
