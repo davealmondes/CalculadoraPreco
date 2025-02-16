@@ -94,7 +94,7 @@
     
     <div class="field">
       <label>Taxa Fixa:</label>
-      <input type="number" id="taxaFixa" step="any" placeholder="Ex: 4" value="4">
+      <input type="number" id="taxaFixa" step="any" placeholder="Ex: 5" value="5">
     </div>
     
     <div class="field">
@@ -159,15 +159,19 @@
           resultadoDiv.innerHTML = "<p style='color:red;'>Por favor, informe um Preço de Venda Total válido.</p>";
           return;
         }
-        // Taxa aplicada ao preço de venda total:
-        var taxaAplicada = (valorVendaTotal * (taxaPercentual / 100)) + taxaFixa;
+        // Calcula a parte percentual da taxa e limita a R$ 100,00
+        var percentualTax = valorVendaTotal * (taxaPercentual / 100);
+        if (percentualTax > 100) {
+          percentualTax = 100;
+        }
+        var taxaAplicada = percentualTax + taxaFixa;
         var liquido = valorVendaTotal - taxaAplicada;
         var lucroTotal = liquido - custoTotal;
         var lucroPorUnidade = lucroTotal / unidades;
         resultadoDiv.innerHTML =
           "<p><strong>Custo Total:</strong> R$ " + custoTotal.toFixed(2) + " (Custo Unitário R$ " + custoUnitario.toFixed(2) + " x " + unidades + ")</p>" +
           "<p><strong>Preço de Venda Total:</strong> R$ " + valorVendaTotal.toFixed(2) + "</p>" +
-          "<p><strong>Taxa Aplicada:</strong> R$ " + taxaAplicada.toFixed(2) + " (" + taxaPercentual.toFixed(2) + "% + R$ " + taxaFixa.toFixed(2) + ")</p>" +
+          "<p><strong>Taxa Aplicada:</strong> R$ " + taxaAplicada.toFixed(2) + " (" + taxaPercentual.toFixed(2) + "% limitado a R$ 100,00 + R$ " + taxaFixa.toFixed(2) + ")</p>" +
           "<p><strong>Preço de Venda Líquido:</strong> R$ " + liquido.toFixed(2) + "</p>" +
           "<p><strong>Lucro Total:</strong> R$ " + lucroTotal.toFixed(2) + "</p>" +
           "<p><strong>Lucro por Unidade:</strong> R$ " + lucroPorUnidade.toFixed(2) + "</p>";
@@ -187,21 +191,4 @@
           return;
         }
         var valorVendaTotalCalculado = (custoTotal + taxaFixa + lucroTotalDesejado) / percentualLiquido;
-        var taxaAplicada = (valorVendaTotalCalculado * (taxaPercentual / 100)) + taxaFixa;
-        var liquido = valorVendaTotalCalculado - taxaAplicada;
-        var lucroTotal = liquido - custoTotal;
-        var lucroPorUnidade = lucroTotal / unidades;
-        var precoVendaPorUnidade = valorVendaTotalCalculado / unidades;
-        resultadoDiv.innerHTML =
-          "<p><strong>Custo Total:</strong> R$ " + custoTotal.toFixed(2) + " (Custo Unitário R$ " + custoUnitario.toFixed(2) + " x " + unidades + ")</p>" +
-          "<p><strong>Preço de Venda Total Necessário:</strong> R$ " + valorVendaTotalCalculado.toFixed(2) + "</p>" +
-          "<p><strong>Preço de Venda por Unidade:</strong> R$ " + precoVendaPorUnidade.toFixed(2) + "</p>" +
-          "<p><strong>Taxa Aplicada:</strong> R$ " + taxaAplicada.toFixed(2) + " (" + taxaPercentual.toFixed(2) + "% + R$ " + taxaFixa.toFixed(2) + ")</p>" +
-          "<p><strong>Preço de Venda Líquido:</strong> R$ " + liquido.toFixed(2) + "</p>" +
-          "<p><strong>Lucro Total:</strong> R$ " + lucroTotal.toFixed(2) + "</p>" +
-          "<p><strong>Lucro por Unidade:</strong> R$ " + lucroPorUnidade.toFixed(2) + "</p>";
-      }
-    }
-  </script>
-</body>
-</html>
+        // Calcula a parte percentual da taxa e limita a R$ 100,00
