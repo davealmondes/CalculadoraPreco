@@ -183,15 +183,21 @@
           return;
         }
         var lucroTotalDesejado = lucroDesejado * unidades;
-        // Fórmula:
-        // Preço de Venda Total = (custoTotal + taxaFixa + lucroTotalDesejado) / (1 - (taxaPercentual/100))
         var percentualLiquido = 1 - (taxaPercentual / 100);
         if (percentualLiquido <= 0) {
           resultadoDiv.innerHTML = "<p style='color:red;'>O valor da taxa percentual deve ser menor que 100%.</p>";
           return;
         }
-        var valorVendaTotalCalculado = (custoTotal + taxaFixa + lucroTotalDesejado) / percentualLiquido;
-        // Calcula a parte percentual da taxa e limita a R$ 100,00
+        // Cálculo padrão (sem considerar o limite da taxa percentual)
+        var candidateSellingPrice = (custoTotal + taxaFixa + lucroTotalDesejado) / percentualLiquido;
+        // Se a parte percentual da taxa ultrapassar R$ 100,00, usa a fórmula com a taxa percentual limitada
+        var valorVendaTotalCalculado;
+        if (candidateSellingPrice * (taxaPercentual / 100) > 100) {
+          valorVendaTotalCalculado = custoTotal + lucroTotalDesejado + 100 + taxaFixa;
+        } else {
+          valorVendaTotalCalculado = candidateSellingPrice;
+        }
+        // Recalcula a taxa aplicada com o valor final de venda
         var percentualTax = valorVendaTotalCalculado * (taxaPercentual / 100);
         if (percentualTax > 100) {
           percentualTax = 100;
