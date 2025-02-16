@@ -76,26 +76,22 @@
 <body>
   <div class="container">
     <h1>Calculadora de Lucro/Venda</h1>
+    
     <div class="field">
-      <label>Valor do Copo:</label>
-      <input type="number" id="valorCopo" step="any" placeholder="Ex: 2.50">
+      <label>Custo Total:</label>
+      <input type="number" id="custoTotal" step="any" placeholder="Ex: 10.00">
     </div>
-    <div class="field">
-      <label>Valor da Embalagem:</label>
-      <input type="number" id="valorEmbalagem" step="any" placeholder="Ex: 1.00">
-    </div>
-    <div class="field">
-      <label>Valor da Tinta:</label>
-      <input type="number" id="valorTinta" step="any" placeholder="Ex: 0.75">
-    </div>
+    
     <div class="field">
       <label>Taxa Percentual (%):</label>
       <input type="number" id="taxaPercentual" step="any" placeholder="Ex: 20" value="20">
     </div>
+    
     <div class="field">
       <label>Taxa Fixa:</label>
       <input type="number" id="taxaFixa" step="any" placeholder="Ex: 4" value="4">
     </div>
+    
     <div class="field">
       <label>Escolha a operação:</label>
       <select id="operation">
@@ -103,14 +99,17 @@
         <option value="venda">Calcular Valor de Venda (informar Lucro Desejado)</option>
       </select>
     </div>
+    
     <div class="field" id="vendaField">
       <label>Valor de Venda:</label>
       <input type="number" id="valorVenda" step="any" placeholder="Ex: 20.00">
     </div>
+    
     <div class="field" id="lucroField" style="display: none;">
       <label>Lucro Desejado:</label>
       <input type="number" id="lucroDesejado" step="any" placeholder="Ex: 5.00">
     </div>
+    
     <button onclick="calcular()">Calcular</button>
     
     <h2>Resultado:</h2>
@@ -131,16 +130,13 @@
     });
 
     function calcular() {
-      // Obtém os valores dos custos
-      var valorCopo = parseFloat(document.getElementById("valorCopo").value) || 0;
-      var valorEmbalagem = parseFloat(document.getElementById("valorEmbalagem").value) || 0;
-      var valorTinta = parseFloat(document.getElementById("valorTinta").value) || 0;
-      var custo = valorCopo + valorEmbalagem + valorTinta;
+      // Obtém o custo total
+      var custo = parseFloat(document.getElementById("custoTotal").value) || 0;
       
       // Obtém os valores da taxa
       var taxaPercentual = parseFloat(document.getElementById("taxaPercentual").value) || 0;
       var taxaFixa = parseFloat(document.getElementById("taxaFixa").value) || 0;
-
+      
       var op = document.getElementById("operation").value;
       var resultadoDiv = document.getElementById("resultado");
       resultadoDiv.innerHTML = ""; // Limpa resultado anterior
@@ -167,8 +163,6 @@
           resultadoDiv.innerHTML = "<p style='color:red;'>Por favor, informe um Lucro Desejado válido.</p>";
           return;
         }
-        // Fórmula: lucro = (valorVenda * (1 - taxaPercentual/100)) - taxaFixa - custo
-        // Então: valorVenda = (lucroDesejado + custo + taxaFixa) / (1 - (taxaPercentual/100))
         var percentualLiquido = 1 - (taxaPercentual / 100);
         if (percentualLiquido <= 0) {
           resultadoDiv.innerHTML = "<p style='color:red;'>O valor da taxa percentual deve ser menor que 100%.</p>";
