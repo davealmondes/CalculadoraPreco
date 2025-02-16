@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <title>Calculadora de Lucro/Venda</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background-color: #f9f9f9;
+    }
+    .container {
+      max-width: 400px;
+      margin: auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .field {
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    input[type="number"],
+    select {
+      width: 100%;
+      padding: 8px;
+      box-sizing: border-box;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+    }
+    button {
+      padding: 10px 20px;
+      background-color: #007BFF;
+      border: none;
+      color: #fff;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    #resultado p {
+      margin: 5px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Calculadora de Lucro/Venda</h1>
+    <div class="field">
+      <label>Valor do Copo:</label>
+      <input type="number" id="valorCopo" step="any" placeholder="Ex: 2.50">
+    </div>
+    <div class="field">
+      <label>Valor da Embalagem:</label>
+      <input type="number" id="valorEmbalagem" step="any" placeholder="Ex: 1.00">
+    </div>
+    <div class="field">
+      <label>Valor da Tinta:</label>
+      <input type="number" id="valorTinta" step="any" placeholder="Ex: 0.75">
+    </div>
+    <div class="field">
+      <label>Escolha a operação:</label>
+      <select id="operation">
+        <option value="lucro">Calcular Lucro (informar Valor de Venda)</option>
+        <option value="venda">Calcular Valor de Venda (informar Lucro Desejado)</option>
+      </select>
+    </div>
+    <div class="field" id="vendaField">
+      <label>Valor de Venda:</label>
+      <input type="number" id="valorVenda" step="any" placeholder="Ex: 20.00">
+    </div>
+    <div class="field" id="lucroField" style="display: none;">
+      <label>Lucro Desejado:</label>
+      <input type="number" id="lucroDesejado" step="any" placeholder="Ex: 5.00">
+    </div>
+    <button onclick="calcular()">Calcular</button>
+    
+    <h2>Resultado:</h2>
+    <div id="resultado"></div>
+  </div>
+
+  <script>
+    // Alterna os campos conforme a operação selecionada
+    document.getElementById("operation").addEventListener("change", function() {
+      var op = this.value;
+      if (op === "lucro") {
+        document.getElementById("vendaField").style.display = "block";
+        document.getElementById("lucroField").style.display = "none";
+      } else if (op === "venda") {
+        document.getElementById("vendaField").style.display = "none";
+        document.getElementById("lucroField").style.display = "block";
+      }
+    });
+
+    function calcular() {
+      // Obtém os valores dos custos
+      var valorCopo = parseFloat(document.getElementById("valorCopo").value) || 0;
+      var valorEmbalagem = parseFloat(document.getElementById("valorEmbalagem").value) || 0;
+      var valorTinta = parseFloat(document.getElementById("valorTinta").value) || 0;
+      var custo = valorCopo + valorEmbalagem + valorTinta;
+      
+      var op = document.getElementById("operation").value;
+      var resultadoDiv = document.getElementById("resultado");
+      resultadoDiv.innerHTML = ""; // Limpa resultado anterior
+
+      if (op === "lucro") {
+        // Modo: calcular lucro a partir do valor de venda
+        var valorVenda = parseFloat(document.getElementById("valorVenda").value);
+        if (isNaN(valorVenda)) {
+          resultadoDiv.innerHTML = "<p style='color:red;'>Por favor, informe um Valor de Venda válido.</p>";
+          return;
+        }
+        // Calcula a taxa (20% do valor de venda + 4)
+        var taxa = (valorVenda * 0.20) + 4;
+        var liquido = valorVenda - taxa;
+        var lucro = liquido - custo;
+        resultadoDiv.innerHTML = "<p><strong>Custo Total:</strong> R$ " + custo.toFixed(2) + "</p>" +
+                                 "<p><strong>Taxa Aplicada:</strong> R$ " + taxa.toFixed(2) + "</p>" +
+                                 "<p><strong>Valor Líquido:</strong> R$ " + liquido.toFixed(2) + "</p>" +
+                                 "<p><strong>Lucro:</strong> R$ " + lucro.toFixed(2) + "</p>";
+      } else if (op === "venda") {
+        // Modo: calcular o valor de venda necessário para atingir o lucro desejado
+        var lucroDesejado = parseFloat(document.getElementById("lucroDesejado").value);
+        if (isNaN(lucroDesejado)) {
+          resultadoDiv.innerHTML = "<p style='color:red;'>Por favor, informe um Lucro Desejado válido.</p>";
+          return;
+        }
+        // Fórmula: lucro = 0.80 * valorVenda - 4 - custo
+        // Portanto, valorVenda = (lucroDesejado + custo + 4) / 0.80
+        var valorVendaCalculado = (lucroDesejado + custo + 4) / 0.80;
+        var taxa = (valorVendaCalculado * 0.20) + 4;
+        var liquido = valorVendaCalculado - taxa;
+        var lucroReal = liquido - custo;
+        resultadoDiv.innerHTML = "<p><strong>Custo Total:</strong> R$ " + custo.toFixed(2) + "</p>" +
+                                 "<p><strong>Valor de Venda Necessário:</strong> R$ " + valorVendaCalculado.toFixed(2) + "</p>" +
+                                 "<p><strong>Taxa Aplicada:</strong> R$ " + taxa.toFixed(2) + "</p>" +
+                                 "<p><strong>Valor Líquido:</strong> R$ " + liquido.toFixed(2) + "</p>" +
+                                 "<p><strong>Lucro:</strong> R$ " + lucroReal.toFixed(2) + "</p>";
+      }
+    }
+  </script>
+</body>
+</html>
