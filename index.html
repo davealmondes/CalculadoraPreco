@@ -2,20 +2,26 @@
 <html lang="pt">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Calculadora de Lucro/Venda</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      margin: 20px;
+      margin: 0;
+      padding: 0;
       background-color: #f9f9f9;
     }
     .container {
+      width: 95%;
       max-width: 400px;
-      margin: auto;
+      margin: 20px auto;
       background: #fff;
       padding: 20px;
       border-radius: 5px;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h1, h2 {
+      text-align: center;
     }
     .field {
       margin-bottom: 15px;
@@ -28,24 +34,42 @@
     input[type="number"],
     select {
       width: 100%;
-      padding: 8px;
+      padding: 10px;
       box-sizing: border-box;
       border: 1px solid #ccc;
       border-radius: 3px;
+      font-size: 16px;
     }
     button {
-      padding: 10px 20px;
+      width: 100%;
+      padding: 10px;
       background-color: #007BFF;
       border: none;
       color: #fff;
       border-radius: 3px;
+      font-size: 16px;
       cursor: pointer;
     }
     button:hover {
       background-color: #0056b3;
     }
     #resultado p {
-      margin: 5px 0;
+      margin: 8px 0;
+      font-size: 16px;
+    }
+    /* Ajustes para telas menores */
+    @media (max-width: 480px) {
+      .container {
+        padding: 15px;
+      }
+      input[type="number"],
+      select,
+      button {
+        font-size: 14px;
+      }
+      #resultado p {
+        font-size: 14px;
+      }
     }
   </style>
 </head>
