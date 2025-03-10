@@ -57,7 +57,6 @@
       margin: 8px 0;
       font-size: 16px;
     }
-    /* Ajustes para telas menores */
     @media (max-width: 480px) {
       .container {
         padding: 15px;
@@ -122,99 +121,61 @@
   </div>
 
   <script>
-    // Alterna os campos conforme a operação selecionada
     document.getElementById("operation").addEventListener("change", function() {
       var op = this.value;
-      if (op === "lucro") {
-        document.getElementById("vendaField").style.display = "block";
-        document.getElementById("lucroField").style.display = "none";
-      } else if (op === "venda") {
-        document.getElementById("vendaField").style.display = "none";
-        document.getElementById("lucroField").style.display = "block";
-      }
+      document.getElementById("vendaField").style.display = op === "lucro" ? "block" : "none";
+      document.getElementById("lucroField").style.display = op === "venda" ? "block" : "none";
     });
 
     function calcular() {
-      // Obtém os valores de custo unitário e quantidade de unidades
       var custoUnitario = parseFloat(document.getElementById("custoUnitario").value) || 0;
       var unidades = parseFloat(document.getElementById("unidades").value);
       if (isNaN(unidades) || unidades <= 0) {
-        document.getElementById("resultado").innerHTML = "<p style='color:red;'>Por favor, informe uma quantidade de unidades válida (maior que 0).</p>";
+        document.getElementById("resultado").innerHTML = "<p style='color:red;'>Informe uma quantidade válida.</p>";
         return;
       }
       var custoTotal = custoUnitario * unidades;
       
-      // Obtém os valores da taxa
       var taxaPercentual = parseFloat(document.getElementById("taxaPercentual").value) || 0;
       var taxaFixa = parseFloat(document.getElementById("taxaFixa").value) || 0;
       
       var op = document.getElementById("operation").value;
       var resultadoDiv = document.getElementById("resultado");
-      resultadoDiv.innerHTML = ""; // Limpa resultado anterior
+      resultadoDiv.innerHTML = "";
 
       if (op === "lucro") {
-        // Modo: calcular lucro a partir do Preço de Venda Total informado
         var valorVendaTotal = parseFloat(document.getElementById("valorVenda").value);
         if (isNaN(valorVendaTotal)) {
-          resultadoDiv.innerHTML = "<p style='color:red;'>Por favor, informe um Preço de Venda Total válido.</p>";
+          resultadoDiv.innerHTML = "<p style='color:red;'>Informe um Preço de Venda Total válido.</p>";
           return;
         }
-        // Calcula a parte percentual da taxa e limita a R$ 100,00
-        var percentualTax = valorVendaTotal * (taxaPercentual / 100);
-        if (percentualTax > 100) {
-          percentualTax = 100;
-        }
+        
+        var percentualTax = Math.min(valorVendaTotal * (taxaPercentual / 100), 100);
         var taxaAplicada = percentualTax + taxaFixa;
         var liquido = valorVendaTotal - taxaAplicada;
         var lucroTotal = liquido - custoTotal;
         var lucroPorUnidade = lucroTotal / unidades;
         resultadoDiv.innerHTML =
-          "<p><strong>Custo Total:</strong> R$ " + custoTotal.toFixed(2) + " (Custo Unitário R$ " + custoUnitario.toFixed(2) + " x " + unidades + ")</p>" +
-          "<p><strong>Preço de Venda Total:</strong> R$ " + valorVendaTotal.toFixed(2) + "</p>" +
-          "<p><strong>Taxa Aplicada:</strong> R$ " + taxaAplicada.toFixed(2) + " (" + taxaPercentual.toFixed(2) + "% limitado a R$ 100,00 + R$ " + taxaFixa.toFixed(2) + ")</p>" +
-          "<p><strong>Preço de Venda Líquido:</strong> R$ " + liquido.toFixed(2) + "</p>" +
-          "<p><strong>Lucro Total:</strong> R$ " + lucroTotal.toFixed(2) + "</p>" +
-          "<p><strong>Lucro por Unidade:</strong> R$ " + lucroPorUnidade.toFixed(2) + "</p>";
-      } else if (op === "venda") {
-        // Modo: calcular o preço de venda necessário para atingir o lucro desejado por unidade
+          `<p><strong>Preço de Venda Total:</strong> R$ ${valorVendaTotal.toFixed(2)}</p>
+          <p><strong>Taxa Aplicada:</strong> R$ ${taxaAplicada.toFixed(2)} (${((taxaAplicada / valorVendaTotal) * 100).toFixed(2)}%)</p>
+          <p><strong>Preço de Venda Líquido:</strong> R$ ${liquido.toFixed(2)} (${((liquido / valorVendaTotal) * 100).toFixed(2)}%)</p>
+          <p><strong>Lucro Total:</strong> R$ ${lucroTotal.toFixed(2)} (${((lucroTotal / valorVendaTotal) * 100).toFixed(2)}%)</p>
+          <p><strong>Lucro por Unidade:</strong> R$ ${lucroPorUnidade.toFixed(2)}</p>`;
+      } else {
         var lucroDesejado = parseFloat(document.getElementById("lucroDesejado").value);
         if (isNaN(lucroDesejado)) {
-          resultadoDiv.innerHTML = "<p style='color:red;'>Por favor, informe um Lucro Desejado por Unidade válido.</p>";
+          resultadoDiv.innerHTML = "<p style='color:red;'>Informe um Lucro Desejado válido.</p>";
           return;
         }
+        
         var lucroTotalDesejado = lucroDesejado * unidades;
-        var percentualLiquido = 1 - (taxaPercentual / 100);
-        if (percentualLiquido <= 0) {
-          resultadoDiv.innerHTML = "<p style='color:red;'>O valor da taxa percentual deve ser menor que 100%.</p>";
-          return;
-        }
-        // Cálculo padrão (sem considerar o limite da taxa percentual)
-        var candidateSellingPrice = (custoTotal + taxaFixa + lucroTotalDesejado) / percentualLiquido;
-        // Se a parte percentual da taxa ultrapassar R$ 100,00, usa a fórmula com a taxa percentual limitada
-        var valorVendaTotalCalculado;
-        if (candidateSellingPrice * (taxaPercentual / 100) > 100) {
-          valorVendaTotalCalculado = custoTotal + lucroTotalDesejado + 100 + taxaFixa;
-        } else {
-          valorVendaTotalCalculado = candidateSellingPrice;
-        }
-        // Recalcula a taxa aplicada com o valor final de venda
-        var percentualTax = valorVendaTotalCalculado * (taxaPercentual / 100);
-        if (percentualTax > 100) {
-          percentualTax = 100;
-        }
-        var taxaAplicada = percentualTax + taxaFixa;
-        var liquido = valorVendaTotalCalculado - taxaAplicada;
-        var lucroTotal = liquido - custoTotal;
-        var lucroPorUnidade = lucroTotal / unidades;
-        var precoVendaPorUnidade = valorVendaTotalCalculado / unidades;
+        var candidateSellingPrice = (custoTotal + taxaFixa + lucroTotalDesejado) / (1 - taxaPercentual / 100);
+        var valorVendaTotalCalculado = candidateSellingPrice * (taxaPercentual / 100) > 100 ? custoTotal + lucroTotalDesejado + 100 + taxaFixa : candidateSellingPrice;
+        
         resultadoDiv.innerHTML =
-          "<p><strong>Custo Total:</strong> R$ " + custoTotal.toFixed(2) + " (Custo Unitário R$ " + custoUnitario.toFixed(2) + " x " + unidades + ")</p>" +
-          "<p><strong>Preço de Venda Total Necessário:</strong> R$ " + valorVendaTotalCalculado.toFixed(2) + "</p>" +
-          "<p><strong>Preço de Venda por Unidade:</strong> R$ " + precoVendaPorUnidade.toFixed(2) + "</p>" +
-          "<p><strong>Taxa Aplicada:</strong> R$ " + taxaAplicada.toFixed(2) + " (" + taxaPercentual.toFixed(2) + "% limitado a R$ 100,00 + R$ " + taxaFixa.toFixed(2) + ")</p>" +
-          "<p><strong>Preço de Venda Líquido:</strong> R$ " + liquido.toFixed(2) + "</p>" +
-          "<p><strong>Lucro Total:</strong> R$ " + lucroTotal.toFixed(2) + "</p>" +
-          "<p><strong>Lucro por Unidade:</strong> R$ " + lucroPorUnidade.toFixed(2) + "</p>";
+          `<p><strong>Preço de Venda Total:</strong> R$ ${valorVendaTotalCalculado.toFixed(2)}</p>
+          <p><strong>Taxa Aplicada:</strong> R$ ${((valorVendaTotalCalculado * (taxaPercentual / 100)) + taxaFixa).toFixed(2)} (${(taxaPercentual)}%)</p>
+          <p><strong>Lucro por Unidade:</strong> R$ ${lucroDesejado.toFixed(2)}</p>`;
       }
     }
   </script>
