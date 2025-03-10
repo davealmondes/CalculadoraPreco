@@ -101,6 +101,7 @@
       <select id="operation">
         <option value="lucro">Calcular Lucro (informar Preço de Venda Total)</option>
         <option value="venda">Calcular Preço de Venda (informar Lucro Desejado por Unidade)</option>
+        <option value="vendaPercentual">Calcular Preço de Venda (informar % de Lucro Desejado)</option>
       </select>
     </div>
     
@@ -114,6 +115,11 @@
       <input type="number" id="lucroDesejado" step="any" placeholder="Ex: 5.00">
     </div>
     
+    <div class="field" id="lucroPercentualField" style="display: none;">
+      <label>Lucro Desejado (%):</label>
+      <input type="number" id="lucroPercentual" step="any" placeholder="Ex: 15">
+    </div>
+    
     <button onclick="calcular()">Calcular</button>
     
     <h2>Resultado:</h2>
@@ -125,6 +131,7 @@
       var op = this.value;
       document.getElementById("vendaField").style.display = op === "lucro" ? "block" : "none";
       document.getElementById("lucroField").style.display = op === "venda" ? "block" : "none";
+      document.getElementById("lucroPercentualField").style.display = op === "vendaPercentual" ? "block" : "none";
     });
 
     function calcular() {
@@ -143,39 +150,24 @@
       var resultadoDiv = document.getElementById("resultado");
       resultadoDiv.innerHTML = "";
 
-      if (op === "lucro") {
-        var valorVendaTotal = parseFloat(document.getElementById("valorVenda").value);
-        if (isNaN(valorVendaTotal)) {
-          resultadoDiv.innerHTML = "<p style='color:red;'>Informe um Preço de Venda Total válido.</p>";
+      if (op === "vendaPercentual") {
+        var lucroPercentual = parseFloat(document.getElementById("lucroPercentual").value);
+        if (isNaN(lucroPercentual)) {
+          resultadoDiv.innerHTML = "<p style='color:red;'>Informe uma porcentagem válida.</p>";
           return;
         }
         
-        var percentualTax = Math.min(valorVendaTotal * (taxaPercentual / 100), 100);
-        var taxaAplicada = percentualTax + taxaFixa;
-        var liquido = valorVendaTotal - taxaAplicada;
-        var lucroTotal = liquido - custoTotal;
-        var lucroPorUnidade = lucroTotal / unidades;
-        resultadoDiv.innerHTML =
-          `<p><strong>Preço de Venda Total:</strong> R$ ${valorVendaTotal.toFixed(2)}</p>
-          <p><strong>Taxa Aplicada:</strong> R$ ${taxaAplicada.toFixed(2)} (${((taxaAplicada / valorVendaTotal) * 100).toFixed(2)}%)</p>
-          <p><strong>Preço de Venda Líquido:</strong> R$ ${liquido.toFixed(2)} (${((liquido / valorVendaTotal) * 100).toFixed(2)}%)</p>
-          <p><strong>Lucro Total:</strong> R$ ${lucroTotal.toFixed(2)} (${((lucroTotal / valorVendaTotal) * 100).toFixed(2)}%)</p>
-          <p><strong>Lucro por Unidade:</strong> R$ ${lucroPorUnidade.toFixed(2)}</p>`;
-      } else {
-        var lucroDesejado = parseFloat(document.getElementById("lucroDesejado").value);
-        if (isNaN(lucroDesejado)) {
-          resultadoDiv.innerHTML = "<p style='color:red;'>Informe um Lucro Desejado válido.</p>";
-          return;
+        var lucroTotalDesejado = custoTotal * (lucroPercentual / 100);
+        var valorVendaTotalCalculado = (custoTotal + lucroTotalDesejado + taxaFixa) / (1 - taxaPercentual / 100);
+        if ((valorVendaTotalCalculado * (taxaPercentual / 100)) > 100) {
+          valorVendaTotalCalculado = custoTotal + lucroTotalDesejado + 100 + taxaFixa;
         }
-        
-        var lucroTotalDesejado = lucroDesejado * unidades;
-        var candidateSellingPrice = (custoTotal + taxaFixa + lucroTotalDesejado) / (1 - taxaPercentual / 100);
-        var valorVendaTotalCalculado = candidateSellingPrice * (taxaPercentual / 100) > 100 ? custoTotal + lucroTotalDesejado + 100 + taxaFixa : candidateSellingPrice;
-        
+
         resultadoDiv.innerHTML =
           `<p><strong>Preço de Venda Total:</strong> R$ ${valorVendaTotalCalculado.toFixed(2)}</p>
-          <p><strong>Taxa Aplicada:</strong> R$ ${((valorVendaTotalCalculado * (taxaPercentual / 100)) + taxaFixa).toFixed(2)} (${(taxaPercentual)}%)</p>
-          <p><strong>Lucro por Unidade:</strong> R$ ${lucroDesejado.toFixed(2)}</p>`;
+          <p><strong>Taxa Aplicada:</strong> R$ ${((valorVendaTotalCalculado * (taxaPercentual / 100)) + taxaFixa).toFixed(2)} (${taxaPercentual}%)</p>
+          <p><strong>Lucro Total:</strong> R$ ${lucroTotalDesejado.toFixed(2)} (${lucroPercentual}%)</p>
+          <p><strong>Lucro por Unidade:</strong> R$ ${(lucroTotalDesejado / unidades).toFixed(2)}</p>`;
       }
     }
   </script>
