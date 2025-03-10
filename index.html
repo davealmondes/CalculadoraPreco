@@ -4,172 +4,142 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Calculadora de Lucro/Venda</title>
+  
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  
+  <!-- FontAwesome para ícones -->
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+
   <style>
     body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      background-color: #f9f9f9;
+      background-color: #f8f9fa;
     }
     .container {
-      width: 95%;
-      max-width: 400px;
-      margin: 20px auto;
-      background: #fff;
+      max-width: 420px;
+      margin: 30px auto;
       padding: 20px;
-      border-radius: 5px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
     }
-    h1, h2 {
-      text-align: center;
-    }
-    .field {
-      margin-bottom: 15px;
-    }
-    label {
-      display: block;
-      margin-bottom: 5px;
+    .form-label {
       font-weight: bold;
     }
-    input[type="number"],
-    select {
-      width: 100%;
-      padding: 10px;
-      box-sizing: border-box;
-      border: 1px solid #ccc;
-      border-radius: 3px;
-      font-size: 16px;
-    }
-    button {
-      width: 100%;
-      padding: 10px;
-      background-color: #007BFF;
-      border: none;
-      color: #fff;
-      border-radius: 3px;
-      font-size: 16px;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #0056b3;
-    }
-    #resultado p {
-      margin: 8px 0;
-      font-size: 16px;
-    }
-    @media (max-width: 480px) {
-      .container {
-        padding: 15px;
-      }
-      input[type="number"],
-      select,
-      button {
-        font-size: 14px;
-      }
-      #resultado p {
-        font-size: 14px;
-      }
+    #resultado {
+      background: #e9f5ff;
+      padding: 15px;
+      border-radius: 5px;
+      display: none;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Calculadora de Lucro/Venda</h1>
-    
-    <div class="field">
-      <label>Custo Unitário:</label>
-      <input type="number" id="custoUnitario" step="any" placeholder="Ex: 10.00">
-    </div>
-    
-    <div class="field">
-      <label>Quantidade de Unidades:</label>
-      <input type="number" id="unidades" step="any" placeholder="Ex: 100">
-    </div>
-    
-    <div class="field">
-      <label>Taxa Percentual (%):</label>
-      <input type="number" id="taxaPercentual" step="any" placeholder="Ex: 20" value="20">
-    </div>
-    
-    <div class="field">
-      <label>Taxa Fixa:</label>
-      <input type="number" id="taxaFixa" step="any" placeholder="Ex: 5" value="5">
-    </div>
-    
-    <div class="field">
-      <label>Escolha a operação:</label>
-      <select id="operation">
-        <option value="lucro">Calcular Lucro (informar Preço de Venda Total)</option>
-        <option value="venda">Calcular Preço de Venda (informar Lucro Desejado por Unidade)</option>
-        <option value="vendaPercentual">Calcular Preço de Venda (informar % de Lucro Desejado)</option>
-      </select>
-    </div>
-    
-    <div class="field" id="vendaField">
-      <label>Preço de Venda Total:</label>
-      <input type="number" id="valorVenda" step="any" placeholder="Ex: 2000.00">
-    </div>
-    
-    <div class="field" id="lucroField" style="display: none;">
-      <label>Lucro Desejado por Unidade:</label>
-      <input type="number" id="lucroDesejado" step="any" placeholder="Ex: 5.00">
-    </div>
-    
-    <div class="field" id="lucroPercentualField" style="display: none;">
-      <label>Lucro Desejado (%):</label>
-      <input type="number" id="lucroPercentual" step="any" placeholder="Ex: 15">
-    </div>
-    
-    <button onclick="calcular()">Calcular</button>
-    
-    <h2>Resultado:</h2>
-    <div id="resultado"></div>
+
+<div class="container">
+  <h2 class="text-center mb-4"><i class="fas fa-calculator"></i> Calculadora de Lucro/Venda</h2>
+
+  <div class="mb-3">
+    <label class="form-label">Custo Unitário:</label>
+    <input type="number" class="form-control" id="custoUnitario" step="any" placeholder="Ex: 10.00">
   </div>
 
-  <script>
-    document.getElementById("operation").addEventListener("change", function() {
-      var op = this.value;
-      document.getElementById("vendaField").style.display = op === "lucro" ? "block" : "none";
-      document.getElementById("lucroField").style.display = op === "venda" ? "block" : "none";
-      document.getElementById("lucroPercentualField").style.display = op === "vendaPercentual" ? "block" : "none";
-    });
+  <div class="mb-3">
+    <label class="form-label">Quantidade de Unidades:</label>
+    <input type="number" class="form-control" id="unidades" step="any" placeholder="Ex: 100">
+  </div>
 
-    function calcular() {
-      var custoUnitario = parseFloat(document.getElementById("custoUnitario").value) || 0;
-      var unidades = parseFloat(document.getElementById("unidades").value);
-      if (isNaN(unidades) || unidades <= 0) {
-        document.getElementById("resultado").innerHTML = "<p style='color:red;'>Informe uma quantidade válida.</p>";
+  <div class="mb-3">
+    <label class="form-label">Taxa Percentual (%):</label>
+    <input type="number" class="form-control" id="taxaPercentual" step="any" value="20">
+  </div>
+
+  <div class="mb-3">
+    <label class="form-label">Taxa Fixa:</label>
+    <input type="number" class="form-control" id="taxaFixa" step="any" value="5">
+  </div>
+
+  <div class="mb-3">
+    <label class="form-label">Escolha a operação:</label>
+    <select class="form-select" id="operation">
+      <option value="lucro">Calcular Lucro (informar Preço de Venda Total)</option>
+      <option value="venda">Calcular Preço de Venda (informar Lucro Desejado por Unidade)</option>
+      <option value="vendaPercentual">Calcular Preço de Venda (informar % de Lucro Desejado)</option>
+    </select>
+  </div>
+
+  <div class="mb-3" id="vendaField">
+    <label class="form-label">Preço de Venda Total:</label>
+    <input type="number" class="form-control" id="valorVenda" step="any">
+  </div>
+
+  <div class="mb-3" id="lucroField" style="display: none;">
+    <label class="form-label">Lucro Desejado por Unidade:</label>
+    <input type="number" class="form-control" id="lucroDesejado" step="any">
+  </div>
+
+  <div class="mb-3" id="lucroPercentualField" style="display: none;">
+    <label class="form-label">Lucro Desejado (%):</label>
+    <input type="number" class="form-control" id="lucroPercentual" step="any">
+  </div>
+
+  <button class="btn btn-primary w-100" onclick="calcular()">
+    <i class="fas fa-calculator"></i> Calcular
+  </button>
+
+  <h3 class="text-center mt-4">Resultado:</h3>
+  <div id="resultado"></div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+  document.getElementById("operation").addEventListener("change", function() {
+    document.getElementById("vendaField").style.display = this.value === "lucro" ? "block" : "none";
+    document.getElementById("lucroField").style.display = this.value === "venda" ? "block" : "none";
+    document.getElementById("lucroPercentualField").style.display = this.value === "vendaPercentual" ? "block" : "none";
+  });
+
+  function calcular() {
+    var custoUnitario = parseFloat(document.getElementById("custoUnitario").value) || 0;
+    var unidades = parseFloat(document.getElementById("unidades").value);
+    if (isNaN(unidades) || unidades <= 0) {
+      document.getElementById("resultado").innerHTML = "<p class='text-danger'>Informe uma quantidade válida.</p>";
+      document.getElementById("resultado").style.display = "block";
+      return;
+    }
+    var custoTotal = custoUnitario * unidades;
+
+    var taxaPercentual = parseFloat(document.getElementById("taxaPercentual").value) || 0;
+    var taxaFixa = parseFloat(document.getElementById("taxaFixa").value) || 0;
+
+    var op = document.getElementById("operation").value;
+    var resultadoDiv = document.getElementById("resultado");
+    resultadoDiv.innerHTML = "";
+    resultadoDiv.style.display = "block";
+
+    if (op === "vendaPercentual") {
+      var lucroPercentual = parseFloat(document.getElementById("lucroPercentual").value);
+      if (isNaN(lucroPercentual)) {
+        resultadoDiv.innerHTML = "<p class='text-danger'>Informe uma porcentagem válida.</p>";
         return;
       }
-      var custoTotal = custoUnitario * unidades;
-      
-      var taxaPercentual = parseFloat(document.getElementById("taxaPercentual").value) || 0;
-      var taxaFixa = parseFloat(document.getElementById("taxaFixa").value) || 0;
-      
-      var op = document.getElementById("operation").value;
-      var resultadoDiv = document.getElementById("resultado");
-      resultadoDiv.innerHTML = "";
 
-      if (op === "vendaPercentual") {
-        var lucroPercentual = parseFloat(document.getElementById("lucroPercentual").value);
-        if (isNaN(lucroPercentual)) {
-          resultadoDiv.innerHTML = "<p style='color:red;'>Informe uma porcentagem válida.</p>";
-          return;
-        }
-        
-        var lucroTotalDesejado = custoTotal * (lucroPercentual / 100);
-        var valorVendaTotalCalculado = (custoTotal + lucroTotalDesejado + taxaFixa) / (1 - taxaPercentual / 100);
-        if ((valorVendaTotalCalculado * (taxaPercentual / 100)) > 100) {
-          valorVendaTotalCalculado = custoTotal + lucroTotalDesejado + 100 + taxaFixa;
-        }
-
-        resultadoDiv.innerHTML =
-          `<p><strong>Preço de Venda Total:</strong> R$ ${valorVendaTotalCalculado.toFixed(2)}</p>
-          <p><strong>Taxa Aplicada:</strong> R$ ${((valorVendaTotalCalculado * (taxaPercentual / 100)) + taxaFixa).toFixed(2)} (${taxaPercentual}%)</p>
-          <p><strong>Lucro Total:</strong> R$ ${lucroTotalDesejado.toFixed(2)} (${lucroPercentual}%)</p>
-          <p><strong>Lucro por Unidade:</strong> R$ ${(lucroTotalDesejado / unidades).toFixed(2)}</p>`;
+      var lucroTotalDesejado = custoTotal * (lucroPercentual / 100);
+      var valorVendaTotalCalculado = (custoTotal + lucroTotalDesejado + taxaFixa) / (1 - taxaPercentual / 100);
+      if ((valorVendaTotalCalculado * (taxaPercentual / 100)) > 100) {
+        valorVendaTotalCalculado = custoTotal + lucroTotalDesejado + 100 + taxaFixa;
       }
+
+      resultadoDiv.innerHTML =
+        `<p><strong>Preço de Venda Total:</strong> R$ ${valorVendaTotalCalculado.toFixed(2)}</p>
+        <p><strong>Taxa Aplicada:</strong> R$ ${((valorVendaTotalCalculado * (taxaPercentual / 100)) + taxaFixa).toFixed(2)} (${taxaPercentual}%)</p>
+        <p><strong>Lucro Total:</strong> R$ ${lucroTotalDesejado.toFixed(2)} (${lucroPercentual}%)</p>
+        <p><strong>Lucro por Unidade:</strong> R$ ${(lucroTotalDesejado / unidades).toFixed(2)}</p>`;
     }
-  </script>
+  }
+</script>
+
 </body>
 </html>
