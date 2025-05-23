@@ -92,6 +92,18 @@
     document.getElementById("markupField").style.display = this.value === "vendaMarkup" ? "block" : "none";
   });
 
+  function avisoLucro(margem) {
+    if (margem < 15) {
+      return `<p style="color: red;"><strong>Lucro muito baixo! (abaixo de 15%)</strong></p>`;
+    } else if (margem < 20){
+      return `<p style="color: orange;"><strong>Lucro baixo! (abaixo de 20%)</strong></p>`;
+    } else if (margem < 25) {
+      return `<p style="color: orange;"><strong>Lucro aceitável.</strong></p>`;
+    } else {
+      return `<p style="color: green;"><strong>Boa margem de lucro!</strong></p>`;
+    }
+  }
+
   function calcular() {
     const custoUnitario = parseFloat(document.getElementById("custoUnitario").value) || 0;
     const unidades = parseFloat(document.getElementById("unidades").value) || 0;
@@ -111,7 +123,8 @@
       if (!valorVendaTotal) return;
 
       const taxaAplicada = Math.min(valorVendaTotal * (taxaPercentual / 100), tetoTaxa);
-      const lucroTotal = valorVendaTotal - custoTotal - taxaAplicada - taxaFixa;
+      const totalTaxas = taxaAplicada + taxaFixa;
+      const lucroTotal = valorVendaTotal - custoTotal - totalTaxas;
       const lucroPorUnidade = lucroTotal / unidades;
       const margemLucro = (lucroTotal / valorVendaTotal) * 100;
       const markup = (lucroTotal / custoTotal) * 100;
@@ -119,8 +132,10 @@
       resultadoDiv.innerHTML = `
         <p><strong>Lucro Total:</strong> R$ ${lucroTotal.toFixed(2)}</p>
         <p><strong>Lucro por Unidade:</strong> R$ ${lucroPorUnidade.toFixed(2)}</p>
+        <p><strong>Total de Taxas:</strong> R$ ${totalTaxas.toFixed(2)}</p>
         <p><strong>Margem de Lucro:</strong> ${margemLucro.toFixed(2)}%</p>
         <p><strong>Markup:</strong> ${markup.toFixed(2)}%</p>
+        ${avisoLucro(margemLucro)}
       `;
     }
 
@@ -132,14 +147,18 @@
       const valorVendaTotal = (taxaAplicada > tetoTaxa)
         ? custoTotal + lucroTotalDesejado + taxaFixa + tetoTaxa
         : valorEstimado;
+      const taxaFinal = Math.min(valorVendaTotal * (taxaPercentual / 100), tetoTaxa);
+      const totalTaxas = taxaFinal + taxaFixa;
 
       const margem = (lucroTotalDesejado / valorVendaTotal) * 100;
       const markup = (lucroTotalDesejado / custoTotal) * 100;
 
       resultadoDiv.innerHTML = `
         <p><strong>Preço de Venda Total:</strong> R$ ${valorVendaTotal.toFixed(2)}</p>
+        <p><strong>Total de Taxas:</strong> R$ ${totalTaxas.toFixed(2)}</p>
         <p><strong>Margem de Lucro:</strong> ${margem.toFixed(2)}%</p>
         <p><strong>Markup:</strong> ${markup.toFixed(2)}%</p>
+        ${avisoLucro(margem)}
       `;
     }
 
@@ -151,14 +170,18 @@
         ? (custoTotal + taxaFixa + tetoTaxa) / (1 - lucroPercentual / 100)
         : valorEstimado;
 
-      const lucroTotal = valorVendaTotal - custoTotal - taxaFixa - Math.min(valorVendaTotal * (taxaPercentual / 100), tetoTaxa);
+      const taxaFinal = Math.min(valorVendaTotal * (taxaPercentual / 100), tetoTaxa);
+      const totalTaxas = taxaFinal + taxaFixa;
+      const lucroTotal = valorVendaTotal - custoTotal - totalTaxas;
       const markup = (lucroTotal / custoTotal) * 100;
 
       resultadoDiv.innerHTML = `
         <p><strong>Preço de Venda Total:</strong> R$ ${valorVendaTotal.toFixed(2)}</p>
         <p><strong>Lucro Total:</strong> R$ ${lucroTotal.toFixed(2)}</p>
+        <p><strong>Total de Taxas:</strong> R$ ${totalTaxas.toFixed(2)}</p>
         <p><strong>Margem de Lucro:</strong> ${lucroPercentual.toFixed(2)}%</p>
         <p><strong>Markup:</strong> ${markup.toFixed(2)}%</p>
+        ${avisoLucro(lucroPercentual)}
       `;
     }
 
@@ -170,14 +193,18 @@
       const valorVendaTotal = (taxaAplicada > tetoTaxa)
         ? custoTotal + lucroDesejado + taxaFixa + tetoTaxa
         : valorEstimado;
+      const taxaFinal = Math.min(valorVendaTotal * (taxaPercentual / 100), tetoTaxa);
+      const totalTaxas = taxaFinal + taxaFixa;
 
       const margem = (lucroDesejado / valorVendaTotal) * 100;
 
       resultadoDiv.innerHTML = `
         <p><strong>Preço de Venda Total:</strong> R$ ${valorVendaTotal.toFixed(2)}</p>
         <p><strong>Lucro Total:</strong> R$ ${lucroDesejado.toFixed(2)}</p>
+        <p><strong>Total de Taxas:</strong> R$ ${totalTaxas.toFixed(2)}</p>
         <p><strong>Markup Desejado:</strong> ${markupPercentual.toFixed(2)}%</p>
         <p><strong>Margem de Lucro:</strong> ${margem.toFixed(2)}%</p>
+        ${avisoLucro(margem)}
       `;
     }
   }
