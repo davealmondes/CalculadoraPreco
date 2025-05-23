@@ -73,16 +73,35 @@
   </div>
 
 
-  <button class="btn btn-primary w-100" onclick="calcular()">
-    <i class="fas fa-calculator"></i> Calcular
-  </button>
+  <div class="row-sm">
+    <div class="col">
+      <button class="btn btn-primary w-100" onclick="calcular()">
+        <i class="fas fa-calculator"></i> Calcular
+      </button>
+    </div>
+    <div class="col">
+      <button class="btn btn-success w-100 mt-sm-2" onclick="sugerirPrecoIdeal()">
+        <i class="bi bi-lightbulb"></i> Sugerir Preço Ideal (mín. 30% de margem)
+      </button>
+    </div>
+  </div>
+
 
   <h3 class="text-center mt-4">Resultado:</h3>
-  <div id="resultado"></div>
+  <div class="row">
+    <div class="col">
+      <div id="resultado"></div>
+    </div>
+    <div class="col">
+      <canvas id="graficoLucro" style="max-width: 600px; margin: 40px auto;"></canvas>
+    </div>
+  </div>
 </div>
 
 <!-- Bootstrap JS -->
 <script src="./assets/bootstrap.min.js"></script>
+<script src="./assets/chart.js"></script>
+
 
 <script>
   document.getElementById("operation").addEventListener("change", function () {
@@ -137,6 +156,8 @@
         <p><strong>Markup:</strong> ${markup.toFixed(2)}%</p>
         ${avisoLucro(margemLucro)}
       `;
+      atualizarGrafico(custoTotal, totalTaxas, lucroTotal);
+
     }
 
     else if (op === "venda") {
@@ -160,6 +181,7 @@
         <p><strong>Markup:</strong> ${markup.toFixed(2)}%</p>
         ${avisoLucro(margem)}
       `;
+      atualizarGrafico(custoTotal, totalTaxas, lucroTotalDesejado);
     }
 
     else if (op === "vendaPercentual") {
@@ -183,6 +205,7 @@
         <p><strong>Markup:</strong> ${markup.toFixed(2)}%</p>
         ${avisoLucro(lucroPercentual)}
       `;
+      atualizarGrafico(custoTotal, totalTaxas, lucroTotal);
     }
 
     else if (op === "vendaMarkup") {
@@ -206,8 +229,95 @@
         <p><strong>Margem de Lucro:</strong> ${margem.toFixed(2)}%</p>
         ${avisoLucro(margem)}
       `;
+      atualizarGrafico(custoTotal, totalTaxas, lucroDesejado);
     }
   }
+
+
+  function sugerirPrecoIdeal() {
+    const custoUnitario = parseFloat(document.getElementById("custoUnitario").value) || 0;
+    const unidades = parseFloat(document.getElementById("unidades").value) || 0;
+    const custoTotal = custoUnitario * unidades;
+    const taxaPercentual = parseFloat(document.getElementById("taxaPercentual").value) || 0;
+    const taxaFixa = parseFloat(document.getElementById("taxaFixa").value) || 0;
+    const resultadoDiv = document.getElementById("resultado");
+    resultadoDiv.innerHTML = "";
+    resultadoDiv.style.display = "block";
+
+    const margemDesejada = 0.25; // 25%
+    const tetoTaxa = 100;
+
+    if (!custoUnitario || !unidades) return;
+
+    // Primeiro tenta calcular normalmente
+    let estimativa = (custoTotal + taxaFixa) / (1 - margemDesejada - (taxaPercentual / 100));
+    let taxaAplicada = estimativa * (taxaPercentual / 100);
+
+    let precoFinal = 0;
+    if (taxaAplicada > tetoTaxa) {
+      precoFinal = (custoTotal + taxaFixa + tetoTaxa) / (1 - margemDesejada);
+      taxaAplicada = tetoTaxa;
+    } else {
+      precoFinal = estimativa;
+    }
+
+    const totalTaxas = taxaAplicada + taxaFixa;
+    const lucroTotal = precoFinal - custoTotal - totalTaxas;
+    const lucroUnidade = lucroTotal / unidades;
+    const markup = (lucroTotal / custoTotal) * 100;
+
+    resultadoDiv.innerHTML = `
+      <p><strong>Preço de Venda Ideal:</strong> R$ ${precoFinal.toFixed(2)}</p>
+      <p><strong>Lucro Total:</strong> R$ ${lucroTotal.toFixed(2)}</p>
+      <p><strong>Lucro por Unidade:</strong> R$ ${lucroUnidade.toFixed(2)}</p>
+      <p><strong>Total de Taxas:</strong> R$ ${totalTaxas.toFixed(2)}</p>
+      <p><strong>Margem de Lucro:</strong> ${(margemDesejada * 100).toFixed(2)}%</p>
+      <p><strong>Markup:</strong> ${markup.toFixed(2)}%</p>
+      <p style="color: green;"><strong>Esse é o menor valor que garante 25% de lucro.</strong></p>
+    `;
+
+    atualizarGrafico(custoTotal, totalTaxas, lucroTotal);
+  }
+
+
+
+  let graficoAtual = null;
+
+  function atualizarGrafico(custo, taxas, lucro) {
+    const ctx = document.getElementById('graficoLucro').getContext('2d');
+    if (graficoAtual) graficoAtual.destroy(); // Remove gráfico anterior, se houver
+
+    graficoAtual = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: ['Custo', 'Taxas', 'Lucro'],
+        datasets: [{
+          label: 'Composição do Preço de Venda',
+          data: [custo, taxas, lucro],
+          backgroundColor: ['#0d6efd', '#ffc107', '#198754'] // azul, amarelo, verde
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: {
+            label: ctx => `R$ ${ctx.raw.toFixed(2)}`
+          }}
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              callback: value => `R$ ${value}`
+            }
+          }
+        }
+      }
+    });
+  } 
+
+
 </script>
 
 
